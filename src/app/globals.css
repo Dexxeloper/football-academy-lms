@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 11 19 41;
+    --foreground: 248 250 252;
+  }
+  
+  body {
+    @apply bg-navy text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-accent/30 selection:text-emerald-400;
+  }
+}
+
+/* Custom sleek scrollbar for tactical dashboards */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b1329;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2e5c;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}

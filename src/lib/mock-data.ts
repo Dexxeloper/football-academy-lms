@@ -1,0 +1,345 @@
+import { Profile, Course, Lesson, Quiz, Certificate, ActivityItem } from '@/types/database';
+
+export const CURRENT_COACH: Profile = {
+  id: 'usr_coach_01',
+  full_name: 'Coach Marcus Vance',
+  email: 'marcus.vance@footballacademy.com',
+  role: 'coach',
+  avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80',
+  academy_position: 'Head U-18 Tactical Coach (UEFA A License)',
+};
+
+export const ADMIN_PROFILE: Profile = {
+  id: 'usr_admin_01',
+  full_name: 'Elena Rostova',
+  email: 'elena.rostova@footballacademy.com',
+  role: 'admin',
+  avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80',
+  academy_position: 'Academy Technical Director',
+};
+
+export const MOCK_COURSES: Course[] = [
+  {
+    id: 'course-pressing-mastery',
+    title: 'High-Pressing Mechanics & Counter-Tactics',
+    description: 'Master the principles of aggressive high-pressing, pressing triggers, cover shadows, and transition management for high-tempo modern football.',
+    category: 'Tactical Analysis',
+    instructor_name: 'Coach Julian Nagels-Senior',
+    instructor_role: 'UEFA Pro Tactical Lead',
+    instructor_avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80',
+    status: 'published',
+    duration_minutes: 180,
+    total_lessons: 6,
+    progress: 67,
+    enrollment_status: 'in_progress',
+  },
+  {
+    id: 'course-periodization',
+    title: 'Youth Academy Periodization & Physical Load',
+    description: 'Evidence-based microcycle planning, high-speed running thresholds, injury prevention, and physical load balancing for U15-U21 elite academy players.',
+    category: 'Sports Science',
+    instructor_name: 'Dr. Raymond Verheijen',
+    instructor_role: 'Lead Sports Scientist',
+    instructor_avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+    status: 'published',
+    duration_minutes: 140,
+    total_lessons: 4,
+    progress: 100,
+    enrollment_status: 'completed',
+  },
+  {
+    id: 'course-positional-play',
+    title: 'Positional Play & Building from the Back',
+    description: 'Detailed analysis of overload-to-isolate concepts, third-man runs, line-breaking passes, and goalkeeper integration under high opponent pressure.',
+    category: 'Tactical Analysis',
+    instructor_name: 'Coach Pep Guardiola-Method',
+    instructor_role: 'Tactical Curriculum Director',
+    instructor_avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+    status: 'published',
+    duration_minutes: 210,
+    total_lessons: 5,
+    progress: 0,
+    enrollment_status: 'enrolled',
+  },
+  {
+    id: 'course-set-pieces',
+    title: 'Modern Set-Piece Strategy & Defensive Structures',
+    description: 'Designing high-expected-goals corner routines, blocking schemes, zonal-hybrid defensive setups, and throw-in progression patterns.',
+    category: 'Specialist Coaching',
+    instructor_name: 'Nicolas Jover-Coach',
+    instructor_role: 'Set Piece Specialist',
+    instructor_avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=800&q=80',
+    status: 'published',
+    duration_minutes: 110,
+    total_lessons: 4,
+    progress: 100,
+    enrollment_status: 'completed',
+  },
+  {
+    id: 'course-match-analysis',
+    title: 'Video Scouting & Opponent Match Analysis',
+    description: 'Utilizing Hudl, Wyscout, and spatial tagging to generate actionable pre-match video briefings and post-match tactical review sessions.',
+    category: 'Performance Analysis',
+    instructor_name: 'Sarah Jenkins',
+    instructor_role: 'Head of Match Scouting',
+    instructor_avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80',
+    thumbnail_url: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+    status: 'published',
+    duration_minutes: 160,
+    total_lessons: 5,
+    progress: 20,
+    enrollment_status: 'in_progress',
+  },
+];
+
+export const MOCK_LESSONS: Record<string, Lesson[]> = {
+  'course-pressing-mastery': [
+    {
+      id: 'les-press-01',
+      course_id: 'course-pressing-mastery',
+      title: '1. Fundamentals of Pressing Triggers',
+      description: 'Understanding body shape, touch quality, backward passes, and touchline constraints as signals to initiate high intensity pressing.',
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Standard embed format
+      duration_minutes: 25,
+      position: 1,
+      completed: true,
+      downloadable_materials: [
+        {
+          id: 'mat-01',
+          title: 'Pressing Triggers Cheat Sheet (PDF)',
+          type: 'pdf',
+          size: '2.4 MB',
+          download_url: '#',
+        },
+        {
+          id: 'mat-02',
+          title: '4v4+3 High Pressing Drill Template',
+          type: 'pdf',
+          size: '1.8 MB',
+          download_url: '#',
+        },
+      ],
+      has_quiz: true,
+      quiz_id: 'quiz-press-01',
+    },
+    {
+      id: 'les-press-02',
+      course_id: 'course-pressing-mastery',
+      title: '2. Cover Shadows & Blocking Passing Lanes',
+      description: 'How pressing forwards use curved runs to slice the pitch in half and prevent switches of play to the weak-side fullback.',
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      duration_minutes: 30,
+      position: 2,
+      completed: true,
+      downloadable_materials: [
+        {
+          id: 'mat-03',
+          title: 'Cover Shadow Geometry Diagram',
+          type: 'pdf',
+          size: '3.1 MB',
+          download_url: '#',
+        },
+      ],
+      has_quiz: false,
+    },
+    {
+      id: 'les-press-03',
+      course_id: 'course-pressing-mastery',
+      title: '3. Rest Defense & Midfield Restructuration',
+      description: 'Structuring the 3+2 or 2+3 safety net behind the pressing line to prevent counter-attacks when the first press is bypassed.',
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      duration_minutes: 28,
+      position: 3,
+      completed: true,
+      downloadable_materials: [
+        {
+          id: 'mat-04',
+          title: 'Rest Defense Positioning Matrix',
+          type: 'pdf',
+          size: '1.2 MB',
+          download_url: '#',
+        },
+      ],
+      has_quiz: true,
+      quiz_id: 'quiz-press-03',
+    },
+    {
+      id: 'les-press-04',
+      course_id: 'course-pressing-mastery',
+      title: '4. Counter-Pressing in the Attacking Third (Gegenpressing)',
+      description: 'The 5-second rule: Immediate vertical intensity upon ball loss to trap opponents during defensive transition phases.',
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      duration_minutes: 32,
+      position: 4,
+      completed: true,
+      downloadable_materials: [
+        {
+          id: 'mat-05',
+          title: 'Rondo to Counter-Pressing Session Plan',
+          type: 'pdf',
+          size: '4.5 MB',
+          download_url: '#',
+        },
+      ],
+      has_quiz: false,
+    },
+    {
+      id: 'les-press-05',
+      course_id: 'course-pressing-mastery',
+      title: '5. Beating the Opposition High Press',
+      description: 'Attracting the opponent press with short passes before playing third-man aerial balls or vertical incisive passes.',
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      duration_minutes: 35,
+      position: 5,
+      completed: false,
+      downloadable_materials: [
+        {
+          id: 'mat-06',
+          title: 'Press-Bypassing Drill Patterns',
+          type: 'pdf',
+          size: '2.9 MB',
+          download_url: '#',
+        },
+      ],
+      has_quiz: true,
+      quiz_id: 'quiz-press-05',
+    },
+    {
+      id: 'les-press-06',
+      course_id: 'course-pressing-mastery',
+      title: '6. Full Match Analysis & Capstone Assessment',
+      description: 'Comprehensive video breakdown of a Champions League high-press tactical clash, followed by the final certification quiz.',
+      video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      duration_minutes: 30,
+      position: 6,
+      completed: false,
+      downloadable_materials: [
+        {
+          id: 'mat-07',
+          title: 'Capstone Tactical Report Template',
+          type: 'pdf',
+          size: '1.5 MB',
+          download_url: '#',
+        },
+      ],
+      has_quiz: true,
+      quiz_id: 'quiz-press-06',
+    },
+  ],
+};
+
+export const MOCK_QUIZZES: Record<string, Quiz> = {
+  'quiz-press-01': {
+    id: 'quiz-press-01',
+    lesson_id: 'les-press-01',
+    course_id: 'course-pressing-mastery',
+    title: 'Quiz 1: Pressing Triggers Evaluation',
+    description: 'Test your understanding of tactical pressing triggers and defensive positioning cues.',
+    passing_score: 75,
+    max_attempts: 3,
+    questions: [
+      {
+        id: 'q1',
+        quiz_id: 'quiz-press-01',
+        question_text: 'Which of the following is considered an immediate trigger to launch an aggressive high press?',
+        options: [
+          'The opponent center-back receives facing forward with open body shape',
+          'The opponent fullback receives a bouncing ball facing their own goal',
+          'The goalkeeper plays a clean ground pass to an unpressed central midfielder',
+          'The opponent winger steps inside with full field vision'
+        ],
+        correct_option_index: 1,
+        explanation: 'A player receiving a bouncing ball facing away from play has limited vision and body control, making it the prime moment to close down space.',
+        position: 1,
+      },
+      {
+        id: 'q2',
+        quiz_id: 'quiz-press-01',
+        question_text: 'What is the main purpose of a "cover shadow" when a striker presses a center-back?',
+        options: [
+          'To tackle the goalkeeper directly',
+          'To block the passing lane to the central midfielder while stepping out',
+          'To force the ball into the center of the pitch',
+          'To allow the opponent to switch play freely'
+        ],
+        correct_option_index: 1,
+        explanation: 'Cover shadows use the defender positioning to block an opponent behind them without needing a second defender to commit.',
+        position: 2,
+      },
+      {
+        id: 'q3',
+        quiz_id: 'quiz-press-01',
+        question_text: 'In a 4-3-3 high press against a 3-4-3 build-up, how should the winger adjust their pressing angle?',
+        options: [
+          'Press the wing-back while keeping the outer center-back in cover shadow',
+          'Curve the run from out-to-in to block the pass to the wing-back while closing the center-back',
+          'Drop back into a deep 5-defensive block immediately',
+          'Focus only on marking the central referee'
+        ],
+        correct_option_index: 1,
+        explanation: 'Curving out-to-in forces the center-back inside where central midfielders and rest-defense numbers can trap the ball.',
+        position: 3,
+      }
+    ]
+  }
+};
+
+export const MOCK_CERTIFICATES: Certificate[] = [
+  {
+    id: 'cert-01',
+    user_id: 'usr_coach_01',
+    course_id: 'course-periodization',
+    course_title: 'Youth Academy Periodization & Physical Load',
+    user_name: 'Coach Marcus Vance',
+    certificate_code: 'FA-CERT-2026-8891',
+    issue_date: '2026-08-14',
+  },
+  {
+    id: 'cert-02',
+    user_id: 'usr_coach_01',
+    course_id: 'course-set-pieces',
+    course_title: 'Modern Set-Piece Strategy & Defensive Structures',
+    user_name: 'Coach Marcus Vance',
+    certificate_code: 'FA-CERT-2026-7734',
+    issue_date: '2026-07-02',
+  },
+];
+
+export const MOCK_ACTIVITIES: ActivityItem[] = [
+  {
+    id: 'act-01',
+    user_name: 'Coach Marcus Vance',
+    action: 'Completed lesson',
+    target: '4. Counter-Pressing in the Attacking Third',
+    timestamp: '2 hours ago',
+    type: 'lesson',
+  },
+  {
+    id: 'act-02',
+    user_name: 'Coach Marcus Vance',
+    action: 'Passed quiz',
+    target: 'Pressing Triggers Evaluation (Score: 100%)',
+    timestamp: '1 day ago',
+    type: 'quiz',
+  },
+  {
+    id: 'act-03',
+    user_name: 'Coach Marcus Vance',
+    action: 'Earned Certificate',
+    target: 'Youth Academy Periodization & Physical Load',
+    timestamp: '2 weeks ago',
+    type: 'certificate',
+  },
+  {
+    id: 'act-04',
+    user_name: 'Coach Marcus Vance',
+    action: 'Enrolled in course',
+    target: 'Positional Play & Building from the Back',
+    timestamp: '3 weeks ago',
+    type: 'course',
+  },
+];
