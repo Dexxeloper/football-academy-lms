@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { I18nProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Football Academy LMS | Coach Education Platform",
-  description: "Modern UEFA Tactical Education and Learning Management System for Football Academy Coaches",
+  title: "Football Academy LMS | Coach Education & Tactical Learning Platform",
+  description: "Professional UEFA Tactical Education and Learning Management System for Football Academy Coaches",
 };
 
 export default function RootLayout({
@@ -12,9 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-navy text-slate-100 antialiased min-h-screen">
-        {children}
+    <html lang="ru">
+      <body className="bg-surface text-gray-900 antialiased min-h-screen">
+        <I18nProvider>
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

@@ -6,11 +6,15 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { CURRENT_COACH } from '@/lib/mock-data';
-import { Shield, Bell, Menu, X, LogOut, User, LayoutDashboard, BookOpen, ShieldAlert } from 'lucide-react';
+import { Shield, Menu, X, LogOut, User } from 'lucide-react';
 import { Badge } from '../ui/Badge';
+import { LanguageSwitcher } from '../ui/LanguageSwitcher';
+import { Sidebar } from './Sidebar';
+import { useTranslation } from '@/lib/i18n';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
   const [userProfile, setUserProfile] = useState<{
     full_name: string;
     role: string;
@@ -29,25 +33,33 @@ export function Navbar() {
 
   useEffect(() => {
     async function loadUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Try loading profile from DB
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
 
-        setUserProfile({
-          full_name: profile?.full_name || user.user_metadata?.full_name || user.email || CURRENT_COACH.full_name,
-          role: profile?.role || user.user_metadata?.role || CURRENT_COACH.role,
-          avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url || CURRENT_COACH.avatar_url!,
-          academy_position: profile?.academy_position || 'Academy Coach',
-        });
+          setUserProfile({
+            full_name: profile?.full_name || user.user_metadata?.full_name || user.email || CURRENT_COACH.full_name,
+            role: profile?.role || user.user_metadata?.role || CURRENT_COACH.role,
+            avatar_url: profile?.avatar_url || user.user_metadata?.avatar_url || CURRENT_COACH.avatar_url!,
+            academy_position: profile?.academy_position || 'Academy Coach',
+          });
+        }
+      } catch (err) {
+        console.error('Navbar user load error:', err);
       }
     }
     loadUser();
   }, [supabase]);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -55,147 +67,120 @@ export function Navbar() {
     router.refresh();
   };
 
-  const navLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Courses', href: '/courses', icon: BookOpen },
-    { name: 'Profile', href: '/profile', icon: User },
-    { name: 'Admin', href: '/admin', icon: ShieldAlert },
-  ];
-
   return (
-    <header className="sticky top-0 z-40 w-full bg-navy/90 backdrop-blur-md border-b border-navy-border/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand Logo */}
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-navy font-black shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                <Shield className="w-6 h-6 fill-navy stroke-navy" />
-              </div>
-              <div>
-                <span className="font-black text-white text-base tracking-wider uppercase block leading-none">
-                  FOOTBALL ACADEMY
-                </span>
-                <span className="text-[10px] font-bold tracking-widest text-emerald-400 uppercase">
-                  COACH LEARNING SYSTEM
-                </span>
-              </div>
-            </Link>
-          </div>
+    <>
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Mobile Toggle & Brand (on mobile) / Title (on desktop) */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const isActive = pathname.startsWith(link.href);
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                    isActive
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Right Action & Profile */}
-          <div className="hidden md:flex items-center gap-4">
-            <button className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400" />
-            </button>
-
-            <div className="h-6 w-px bg-slate-800" />
-
-            <Link href="/profile" className="flex items-center gap-3 pl-1 group">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-emerald-500/50 group-hover:border-emerald-400 transition-colors">
-                <Image
-                  src={userProfile.avatar_url}
-                  alt={userProfile.full_name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="text-left">
-                <div className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">
-                  {userProfile.full_name}
+              <Link href="/dashboard" className="flex items-center gap-2.5 lg:hidden">
+                <div className="w-9 h-9 rounded-xl bg-green-600 flex items-center justify-center text-white shadow-sm shadow-green-600/30">
+                  <Shield className="w-5 h-5 fill-white stroke-white" />
                 </div>
-                <div className="text-[10px] text-slate-400">
-                  <Badge variant={userProfile.role === 'admin' ? 'purple' : 'emerald'} size="sm">
-                    {userProfile.role}
-                  </Badge>
-                </div>
+                <span className="font-extrabold text-gray-900 text-sm tracking-tight uppercase">
+                  Football Academy
+                </span>
+              </Link>
+
+              {/* Desktop breadcrumb / current section subtitle */}
+              <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-gray-500">
+                <span className="w-2 h-2 rounded-full bg-green-600 inline-block" />
+                <span>UEFA Coaching & Tactical Education Platform</span>
               </div>
-            </Link>
+            </div>
 
-            <button
-              onClick={handleSignOut}
-              className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-              title="Sign Out"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
+            {/* Right: Language Switcher, User & Actions */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <LanguageSwitcher />
 
-          {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-300 hover:bg-slate-800"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+              <div className="h-5 w-px bg-gray-200" />
+
+              <Link href="/profile" className="flex items-center gap-2.5 group">
+                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-green-500/80 group-hover:border-green-600 transition-colors shadow-sm">
+                  <Image
+                    src={userProfile.avatar_url}
+                    alt={userProfile.full_name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="hidden sm:block text-left">
+                  <div className="text-xs font-bold text-gray-900 group-hover:text-green-700 transition-colors truncate max-w-[130px]">
+                    {userProfile.full_name}
+                  </div>
+                  <div className="text-[10px]">
+                    <Badge variant={userProfile.role === 'admin' ? 'purple' : 'green'} size="sm">
+                      {userProfile.role}
+                    </Badge>
+                  </div>
+                </div>
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                title={t('nav.logout')}
+                aria-label={t('nav.logout')}
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-navy-card border-b border-navy-border p-4 space-y-3">
-          <div className="flex items-center gap-3 pb-3 border-b border-slate-800">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500">
-              <Image src={userProfile.avatar_url} alt={userProfile.full_name} fill className="object-cover" />
-            </div>
-            <div>
-              <div className="text-sm font-bold text-white">{userProfile.full_name}</div>
-              <div className="text-xs text-slate-400">{userProfile.academy_position}</div>
-            </div>
-          </div>
+        <div
+          className="fixed inset-0 z-50 lg:hidden flex"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
 
-          <div className="space-y-1">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-200 hover:bg-slate-800"
-                >
-                  <Icon className="w-5 h-5 text-emerald-400" />
-                  {link.name}
-                </Link>
-              );
-            })}
-          </div>
+          {/* Drawer content */}
+          <div className="relative w-72 max-w-[80vw] h-full bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-left duration-200">
+            <div className="p-4 flex items-center justify-between border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center text-white">
+                  <Shield className="w-4 h-4 fill-white" />
+                </div>
+                <span className="font-bold text-xs uppercase text-gray-900 tracking-tight">
+                  Football Academy
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-          <div className="pt-2 border-t border-slate-800">
-            <button
-              onClick={() => { setMobileMenuOpen(false); handleSignOut(); }}
-              className="flex items-center gap-2 text-rose-400 text-sm font-semibold px-3 py-2 w-full text-left"
-            >
-              <LogOut className="w-4 h-4" /> Sign Out
-            </button>
+            <div className="flex-1">
+              <Sidebar onNavClick={() => setMobileMenuOpen(false)} isMobile />
+            </div>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

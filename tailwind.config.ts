@@ -9,17 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: {
-          DEFAULT: "#0b1329",
-          dark: "#060b17",
-          light: "#142247",
-          card: "#111c38",
-          border: "#1e2e5c",
+        brand: {
+          50: "#f0fdf4",
+          100: "#DCFCE7",
+          200: "#bbf7d0",
+          300: "#86efac",
+          400: "#4ade80",
+          500: "#22c55e",
+          600: "#16A34A",
+          700: "#15803d",
+          800: "#166534",
+          900: "#14532d",
+          DEFAULT: "#16A34A",
+          primary: "#16A34A",
+          dark: "#166534",
+          light: "#DCFCE7",
+          hover: "#15803D",
         },
-        emerald: {
-          accent: "#10b981",
-          hover: "#059669",
-          glow: "rgba(16, 185, 129, 0.15)",
+        surface: {
+          DEFAULT: "#F7F9F8",
+          card: "#FFFFFF",
+          muted: "#F3F4F6",
+          border: "#E5E7EB",
         },
       },
     },

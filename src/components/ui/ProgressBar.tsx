@@ -3,36 +3,44 @@ import React from 'react';
 interface ProgressBarProps {
   value: number; // 0 - 100
   showLabel?: boolean;
+  label?: string;
   size?: 'sm' | 'md' | 'lg';
-  color?: 'emerald' | 'blue';
+  color?: 'emerald' | 'green' | 'blue';
 }
 
-export function ProgressBar({ value, showLabel = true, size = 'md', color = 'emerald' }: ProgressBarProps) {
-  const safeValue = Math.min(100, Math.max(0, value));
+export function ProgressBar({ value, showLabel = true, label, size = 'md', color = 'green' }: ProgressBarProps) {
+  const safeValue = Math.min(100, Math.max(0, Math.round(value || 0)));
 
   const heightClasses = {
     sm: 'h-1.5',
     md: 'h-2.5',
-    lg: 'h-4',
+    lg: 'h-3.5',
   };
 
   const colorClasses = {
-    emerald: 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]',
-    blue: 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]',
+    emerald: 'bg-green-600',
+    green: 'bg-green-600',
+    blue: 'bg-blue-600',
   };
+
+  const selectedColor = colorClasses[color] || colorClasses.green;
 
   return (
     <div className="w-full">
       {showLabel && (
-        <div className="flex justify-between items-center mb-1 text-xs font-semibold text-slate-300">
-          <span>Completion Progress</span>
-          <span className="text-emerald-400 font-bold">{safeValue}%</span>
+        <div className="flex justify-between items-center mb-1.5 text-xs font-semibold text-gray-600">
+          <span>{label || 'Прогресс'}</span>
+          <span className="text-green-700 font-bold">{safeValue}%</span>
         </div>
       )}
-      <div className={`w-full bg-slate-800/80 rounded-full overflow-hidden ${heightClasses[size]} border border-slate-700/50`}>
+      <div className={`w-full bg-gray-100 rounded-full overflow-hidden ${heightClasses[size]} border border-gray-200/80`}>
         <div
-          className={`${heightClasses[size]} ${colorClasses[color]} rounded-full transition-all duration-500 ease-out`}
+          className={`${heightClasses[size]} ${selectedColor} rounded-full transition-all duration-500 ease-out`}
           style={{ width: `${safeValue}%` }}
+          role="progressbar"
+          aria-valuenow={safeValue}
+          aria-valuemin={0}
+          aria-valuemax={100}
         />
       </div>
     </div>

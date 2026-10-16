@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { BaseLayout } from '@/components/layout/BaseLayout';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
+import { Modal } from '@/components/ui/Modal';
 import { createClient } from '@/lib/supabase/client';
 import { Course, CourseStatus, Profile } from '@/types/database';
 import { MOCK_COURSES, MOCK_CERTIFICATES } from '@/lib/mock-data';
@@ -14,16 +15,15 @@ import {
   Award,
   Plus,
   Edit,
-  Trash2,
-  CheckCircle2,
-  X,
   Sparkles,
   Loader2,
   AlertCircle,
   Save,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [activeTab, setActiveTab] = useState<'courses' | 'users' | 'certificates'>('courses');
   
@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleSeedMockCourses = async () => {
-    if (!confirm('Seed the initial UEFA tactical courses into your Supabase database?')) return;
+    if (!confirm(t('admin.seedConfirm'))) return;
     setSaving(true);
 
     try {
@@ -238,29 +238,30 @@ export default function AdminDashboardPage() {
     <BaseLayout>
       <div className="space-y-8">
         {/* Admin Header Banner */}
-        <div className="bg-gradient-to-r from-purple-950/80 via-navy-card to-navy-dark border border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-500/20 border border-purple-500/40 text-purple-400 rounded-2xl shrink-0">
+              <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-2xl shrink-0">
                 <ShieldAlert className="w-8 h-8" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-black text-white">Academy Admin Control Center</h1>
-                  <Badge variant="purple">Admin System</Badge>
+                  <h1 className="text-2xl font-black text-gray-900">{t('admin.title')}</h1>
+                  <Badge variant="green">Admin Portal</Badge>
                 </div>
-                <p className="text-xs text-slate-300 mt-1">
-                  Manage Academy Courses, Lessons, User Profiles, and UEFA Certification issuance in Supabase.
+                <p className="text-xs text-gray-500 mt-1">
+                  {t('admin.subtitle')}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
+                type="button"
                 onClick={openCreateModal}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-navy font-extrabold rounded-xl text-xs transition-all shadow-lg shadow-emerald-500/20"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs transition-all shadow-sm shadow-green-600/20"
               >
-                <Plus className="w-4 h-4" /> Create Course
+                <Plus className="w-4 h-4" /> {t('admin.createCourse')}
               </button>
             </div>
           </div>
@@ -268,46 +269,78 @@ export default function AdminDashboardPage() {
 
         {/* Platform Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard title="Supabase Courses" value={courses.length} subtitle={`${courses.filter(c => c.status === 'published').length} Published`} icon={BookOpen} accentColor="emerald" />
-          <StatCard title="Registered Profiles" value={profiles.length || 5} subtitle="User Profiles in Database" icon={Users} accentColor="purple" />
-          <StatCard title="Issued Certificates" value={MOCK_CERTIFICATES.length} subtitle="UEFA Credentials" icon={Award} accentColor="amber" />
+          <StatCard
+            title={t('admin.courses')}
+            value={courses.length}
+            subtitle={`${courses.filter(c => c.status === 'published').length} ${t('common.published')}`}
+            icon={BookOpen}
+            accentColor="green"
+          />
+          <StatCard
+            title={t('admin.usersTab')}
+            value={profiles.length || 5}
+            subtitle={t('admin.usersTab')}
+            icon={Users}
+            accentColor="blue"
+          />
+          <StatCard
+            title={t('admin.certificatesTab')}
+            value={MOCK_CERTIFICATES.length}
+            subtitle="UEFA Credentials"
+            icon={Award}
+            accentColor="amber"
+          />
         </div>
 
         {/* Error notification */}
         {errorMsg && (
-          <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errorMsg}</span>
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs flex items-center gap-2 animate-in fade-in">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span className="font-medium">{errorMsg}</span>
           </div>
         )}
 
         {/* Management Tabs */}
-        <div className="bg-navy-card border border-navy-border/80 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4 flex-wrap gap-4">
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-4 flex-wrap gap-4">
             <div className="flex items-center gap-2 overflow-x-auto">
-              {(['courses', 'users', 'certificates'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === tab
-                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                  }`}
-                >
-                  {tab} ({tab === 'courses' ? courses.length : tab === 'users' ? profiles.length : MOCK_CERTIFICATES.length})
-                </button>
-              ))}
+              {(['courses', 'users', 'certificates'] as const).map((tab) => {
+                const isActive = activeTab === tab;
+                const tabTitle =
+                  tab === 'courses'
+                    ? t('admin.coursesTab')
+                    : tab === 'users'
+                    ? t('admin.usersTab')
+                    : t('admin.certificatesTab');
+                const count =
+                  tab === 'courses' ? courses.length : tab === 'users' ? profiles.length : MOCK_CERTIFICATES.length;
+
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    {tabTitle} ({count})
+                  </button>
+                );
+              })}
             </div>
 
             {courses.length === 0 && (
               <button
+                type="button"
                 onClick={handleSeedMockCourses}
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
               >
-                <Sparkles className="w-4 h-4 text-purple-400" />
-                Seed Initial Tactical Courses to Supabase
+                <Sparkles className="w-4 h-4 text-green-600" />
+                {t('admin.seedCourses')}
               </button>
             )}
           </div>
@@ -317,35 +350,35 @@ export default function AdminDashboardPage() {
             <div className="space-y-4">
               {loading ? (
                 <div className="text-center py-12">
-                  <Loader2 className="w-8 h-8 text-emerald-400 animate-spin mx-auto mb-2" />
-                  <p className="text-xs text-slate-400">Loading courses from Supabase...</p>
+                  <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-2" />
+                  <p className="text-xs text-gray-500">{t('common.loading')}</p>
                 </div>
               ) : courses.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
+                  <table className="w-full text-left text-xs text-gray-600">
+                    <thead className="bg-gray-50 text-gray-700 font-bold uppercase tracking-wider border-b border-gray-200">
                       <tr>
-                        <th className="p-3">Course Title</th>
-                        <th className="p-3">Category</th>
-                        <th className="p-3">Instructor</th>
-                        <th className="p-3">Duration</th>
-                        <th className="p-3">Status</th>
-                        <th className="p-3 text-right">Actions</th>
+                        <th className="p-3.5">{t('admin.courseTitle')}</th>
+                        <th className="p-3.5">{t('admin.category')}</th>
+                        <th className="p-3.5">{t('admin.instructor')}</th>
+                        <th className="p-3.5">{t('admin.duration')}</th>
+                        <th className="p-3.5">{t('admin.status')}</th>
+                        <th className="p-3.5 text-right">{t('admin.actions')}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/80">
+                    <tbody className="divide-y divide-gray-100">
                       {courses.map((course) => (
-                        <tr key={course.id} className="hover:bg-slate-900/50 transition-colors">
-                          <td className="p-3 font-bold text-white max-w-xs truncate">{course.title}</td>
-                          <td className="p-3">{course.category}</td>
-                          <td className="p-3 text-slate-400">{course.instructor_name}</td>
-                          <td className="p-3">{course.duration_minutes}m</td>
-                          <td className="p-3">
-                            <div className="flex items-center gap-1.5">
+                        <tr key={course.id} className="hover:bg-gray-50/70 transition-colors">
+                          <td className="p-3.5 font-bold text-gray-900 max-w-xs truncate">{course.title}</td>
+                          <td className="p-3.5">{course.category}</td>
+                          <td className="p-3.5 text-gray-600">{course.instructor_name}</td>
+                          <td className="p-3.5">{course.duration_minutes}m</td>
+                          <td className="p-3.5">
+                            <div className="flex items-center gap-2">
                               <Badge
                                 variant={
                                   course.status === 'published'
-                                    ? 'emerald'
+                                    ? 'green'
                                     : course.status === 'draft'
                                     ? 'amber'
                                     : 'slate'
@@ -357,7 +390,7 @@ export default function AdminDashboardPage() {
                               <select
                                 value={course.status}
                                 onChange={(e) => handleQuickStatusToggle(course, e.target.value as CourseStatus)}
-                                className="bg-slate-900 text-[10px] text-slate-400 border border-slate-700 rounded px-1.5 py-0.5 outline-none"
+                                className="bg-white text-[11px] text-gray-600 border border-gray-300 rounded px-1.5 py-0.5 outline-none focus:border-green-600 shadow-2xs"
                               >
                                 <option value="published">published</option>
                                 <option value="draft">draft</option>
@@ -365,11 +398,12 @@ export default function AdminDashboardPage() {
                               </select>
                             </div>
                           </td>
-                          <td className="p-3 text-right space-x-2">
+                          <td className="p-3.5 text-right">
                             <button
+                              type="button"
                               onClick={() => openEditModal(course)}
-                              className="text-slate-400 hover:text-emerald-400 p-1.5 rounded-lg bg-slate-900 border border-slate-800"
-                              title="Edit Course"
+                              className="text-gray-500 hover:text-green-700 p-1.5 rounded-lg bg-gray-50 hover:bg-green-50 border border-gray-200 transition-colors"
+                              title={t('admin.editCourse')}
                             >
                               <Edit className="w-4 h-4" />
                             </button>
@@ -380,13 +414,14 @@ export default function AdminDashboardPage() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-                  <p className="text-xs text-slate-400 mb-3">No courses exist in the Supabase database yet.</p>
+                <div className="text-center py-12 bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                  <p className="text-xs text-gray-500 mb-3">{t('admin.noCourses')}</p>
                   <button
+                    type="button"
                     onClick={openCreateModal}
-                    className="px-4 py-2 bg-emerald-500 text-navy font-bold rounded-xl text-xs"
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs shadow-sm"
                   >
-                    + Create First Course
+                    + {t('admin.createFirstCourse')}
                   </button>
                 </div>
               )}
@@ -397,26 +432,26 @@ export default function AdminDashboardPage() {
           {activeTab === 'users' && (
             <div className="space-y-4">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300">
-                  <thead className="bg-slate-900 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
+                <table className="w-full text-left text-xs text-gray-600">
+                  <thead className="bg-gray-50 text-gray-700 font-bold uppercase tracking-wider border-b border-gray-200">
                     <tr>
-                      <th className="p-3">User Name</th>
-                      <th className="p-3">Email</th>
-                      <th className="p-3">Role</th>
-                      <th className="p-3">Academy Position</th>
+                      <th className="p-3.5">{t('admin.userName')}</th>
+                      <th className="p-3.5">{t('admin.userEmail')}</th>
+                      <th className="p-3.5">{t('admin.userRole')}</th>
+                      <th className="p-3.5">{t('admin.userPosition')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/80">
+                  <tbody className="divide-y divide-gray-100">
                     {profiles.map((user) => (
-                      <tr key={user.id} className="hover:bg-slate-900/50">
-                        <td className="p-3 font-bold text-white">{user.full_name}</td>
-                        <td className="p-3 text-slate-400">{user.email}</td>
-                        <td className="p-3">
-                          <Badge variant={user.role === 'admin' ? 'purple' : 'emerald'}>
+                      <tr key={user.id} className="hover:bg-gray-50/70 transition-colors">
+                        <td className="p-3.5 font-bold text-gray-900">{user.full_name}</td>
+                        <td className="p-3.5 text-gray-500">{user.email}</td>
+                        <td className="p-3.5">
+                          <Badge variant={user.role === 'admin' ? 'purple' : 'green'}>
                             {user.role}
                           </Badge>
                         </td>
-                        <td className="p-3">{user.academy_position || 'Academy Staff'}</td>
+                        <td className="p-3.5">{user.academy_position || 'Academy Staff'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -428,14 +463,14 @@ export default function AdminDashboardPage() {
           {/* TAB 3: CERTIFICATES */}
           {activeTab === 'certificates' && (
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-white">Issued Certificates Registry</h3>
+              <h3 className="text-sm font-bold text-gray-900">{t('profile.officialCertificates')}</h3>
               <div className="space-y-2">
                 {MOCK_CERTIFICATES.map((c) => (
-                  <div key={c.id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                  <div key={c.id} className="p-3.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between text-xs">
                     <div>
-                      <span className="font-bold text-white">{c.user_name}</span> &bull; {c.course_title}
+                      <span className="font-bold text-gray-900">{c.user_name}</span> &bull; {c.course_title}
                     </div>
-                    <Badge variant="emerald">{c.certificate_code}</Badge>
+                    <Badge variant="green">{c.certificate_code}</Badge>
                   </div>
                 ))}
               </div>
@@ -445,132 +480,120 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Course Create / Edit Modal */}
-      {showCourseModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-navy-card border border-navy-border rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-lg font-bold text-white">
-                {editingCourse ? 'Edit Course Details' : 'Create New Academy Course'}
-              </h3>
-              <button
-                onClick={() => setShowCourseModal(false)}
-                className="text-slate-400 hover:text-white p-1"
+      <Modal
+        isOpen={showCourseModal}
+        onClose={() => setShowCourseModal(false)}
+        title={editingCourse ? t('admin.editCourse') : t('admin.createCourse')}
+      >
+        <form onSubmit={handleSaveCourse} className="space-y-4 text-xs">
+          <div>
+            <label className="block font-bold text-gray-700 mb-1">{t('admin.courseTitle')}</label>
+            <input
+              type="text"
+              required
+              value={formTitle}
+              onChange={(e) => setFormTitle(e.target.value)}
+              className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
+              placeholder="e.g. High-Pressing Mechanics"
+            />
+          </div>
+
+          <div>
+            <label className="block font-bold text-gray-700 mb-1">{t('admin.description')}</label>
+            <textarea
+              required
+              rows={3}
+              value={formDescription}
+              onChange={(e) => setFormDescription(e.target.value)}
+              className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
+              placeholder="Course tactical overview..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">{t('admin.category')}</label>
+              <select
+                value={formCategory}
+                onChange={(e) => setFormCategory(e.target.value)}
+                className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
               >
-                <X className="w-5 h-5" />
-              </button>
+                <option value="Tactical Analysis">Tactical Analysis</option>
+                <option value="Sports Science">Sports Science</option>
+                <option value="Specialist Coaching">Specialist Coaching</option>
+                <option value="Performance Analysis">Performance Analysis</option>
+              </select>
             </div>
 
-            <form onSubmit={handleSaveCourse} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Course Title</label>
-                <input
-                  type="text"
-                  required
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                  placeholder="e.g. High-Pressing Mechanics"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Description</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                  placeholder="Course tactical overview..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Category</label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                  >
-                    <option value="Tactical Analysis">Tactical Analysis</option>
-                    <option value="Sports Science">Sports Science</option>
-                    <option value="Specialist Coaching">Specialist Coaching</option>
-                    <option value="Performance Analysis">Performance Analysis</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Status</label>
-                  <select
-                    value={formStatus}
-                    onChange={(e) => setFormStatus(e.target.value as CourseStatus)}
-                    className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                  >
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Instructor Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formInstructor}
-                    onChange={(e) => setFormInstructor(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Duration (Mins)</label>
-                  <input
-                    type="number"
-                    required
-                    value={formDuration}
-                    onChange={(e) => setFormDuration(parseInt(e.target.value) || 60)}
-                    className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Thumbnail Image URL</label>
-                <input
-                  type="url"
-                  required
-                  value={formThumbnail}
-                  onChange={(e) => setFormThumbnail(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded-xl p-2.5 text-white outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setShowCourseModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-navy font-bold rounded-xl flex items-center gap-2 disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  {editingCourse ? 'Update Course' : 'Save New Course'}
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">{t('admin.status')}</label>
+              <select
+                value={formStatus}
+                onChange={(e) => setFormStatus(e.target.value as CourseStatus)}
+                className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">{t('admin.instructor')}</label>
+              <input
+                type="text"
+                required
+                value={formInstructor}
+                onChange={(e) => setFormInstructor(e.target.value)}
+                className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold text-gray-700 mb-1">{t('admin.duration')} (Mins)</label>
+              <input
+                type="number"
+                required
+                value={formDuration}
+                onChange={(e) => setFormDuration(parseInt(e.target.value) || 60)}
+                className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-bold text-gray-700 mb-1">{t('admin.thumbnailUrl')}</label>
+            <input
+              type="url"
+              required
+              value={formThumbnail}
+              onChange={(e) => setFormThumbnail(e.target.value)}
+              className="w-full bg-white border border-gray-300 focus:border-green-600 focus:ring-1 focus:ring-green-600 rounded-xl p-2.5 text-gray-900 outline-none shadow-2xs"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setShowCourseModal(false)}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-colors"
+            >
+              {t('admin.cancel')}
+            </button>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl flex items-center gap-2 disabled:opacity-50 shadow-sm transition-colors"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span>{editingCourse ? t('admin.save') : t('admin.createCourse')}</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
     </BaseLayout>
   );
 }

@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { BaseLayout } from '@/components/layout/BaseLayout';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { createClient } from '@/lib/supabase/client';
 import { Course, Lesson } from '@/types/database';
 import {
@@ -20,11 +21,15 @@ import {
   Loader2,
   AlertCircle,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
+
+const FALLBACK_THUMBNAIL = 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80';
 
 export default function CourseDetailsPage() {
   const params = useParams();
   const courseId = params.id as string;
   const supabase = createClient();
+  const { t } = useTranslation();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -52,7 +57,7 @@ export default function CourseDetailsPage() {
         }
 
         if (!courseData) {
-          setErrorMsg('Course not found in database.');
+          setErrorMsg(t('courseDetail.courseNotFound'));
           setLoading(false);
           return;
         }
@@ -82,14 +87,14 @@ export default function CourseDetailsPage() {
     if (courseId) {
       loadCourseDetails();
     }
-  }, [courseId, supabase]);
+  }, [courseId, supabase, t]);
 
   if (loading) {
     return (
       <BaseLayout>
-        <div className="text-center py-20 bg-navy-card border border-navy-border rounded-3xl">
-          <Loader2 className="w-8 h-8 text-emerald-400 animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Loading Course Details...</p>
+        <div className="text-center py-20 bg-white border border-gray-200 rounded-3xl shadow-sm">
+          <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{t('common.loading')}</p>
         </div>
       </BaseLayout>
     );
@@ -101,21 +106,24 @@ export default function CourseDetailsPage() {
         <div className="space-y-6">
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-emerald-400 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-700 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Catalog
+            <ArrowLeft className="w-4 h-4" /> {t('courseDetail.backToCourses')}
           </Link>
-          <div className="text-center py-16 bg-navy-card border border-navy-border rounded-3xl p-8">
-            <AlertCircle className="w-10 h-10 text-rose-500 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-white mb-2">{errorMsg || 'Course Not Found'}</h3>
-            <p className="text-xs text-slate-400 mb-6">The requested course could not be retrieved from the database.</p>
-            <Link
-              href="/courses"
-              className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-navy font-bold rounded-xl text-xs transition-colors"
-            >
-              Browse Available Courses
-            </Link>
-          </div>
+
+          <EmptyState
+            icon={AlertCircle}
+            title={errorMsg || t('courseDetail.courseNotFound')}
+            description={t('courseDetail.courseNotFoundDesc')}
+            action={
+              <Link
+                href="/courses"
+                className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs transition-colors shadow-sm"
+              >
+                {t('courseDetail.browseCourses')}
+              </Link>
+            }
+          />
         </div>
       </BaseLayout>
     );
@@ -123,7 +131,7 @@ export default function CourseDetailsPage() {
 
   const completedCount = lessons.filter((l) => l.completed).length;
   const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
-  const thumbnail = course.thumbnail_url || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80';
+  const thumbnail = course.thumbnail_url || FALLBACK_THUMBNAIL;
 
   return (
     <BaseLayout>
@@ -132,16 +140,16 @@ export default function CourseDetailsPage() {
         <div>
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-emerald-400 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-green-700 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Catalog
+            <ArrowLeft className="w-4 h-4" /> {t('courseDetail.backToCourses')}
           </Link>
         </div>
 
         {/* Hero Header */}
-        <div className="bg-navy-card border border-navy-border/90 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
           {/* Controlled Hero Banner Image */}
-          <div className="relative aspect-video w-full max-h-56 sm:max-h-64 md:max-h-72 rounded-2xl overflow-hidden border border-slate-800 mb-6">
+          <div className="relative aspect-video w-full max-h-56 sm:max-h-64 md:max-h-80 rounded-2xl overflow-hidden border border-gray-200 mb-6">
             <Image
               src={thumbnail}
               alt={course.title}
@@ -150,28 +158,38 @@ export default function CourseDetailsPage() {
               priority
               sizes="(max-width: 1200px) 100vw, 1200px"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-card via-transparent to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-90" />
+            
+            <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex flex-wrap gap-2">
+              <Badge variant="green" size="md" className="bg-white/95 text-green-800 shadow-sm border-white/60">
+                {course.category}
+              </Badge>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             {/* Left Info */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge variant="emerald">{course.category}</Badge>
-                <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
-                  <Clock className="w-3.5 h-3.5 text-emerald-400" /> {course.duration_minutes} Mins
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-medium">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-green-600" /> {course.duration_minutes} {t('common.minutes')}
                 </span>
-                <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
-                  <BookOpen className="w-3.5 h-3.5 text-emerald-400" /> {lessons.length} Lessons
+                <span>&bull;</span>
+                <span className="flex items-center gap-1.5">
+                  <BookOpen className="w-4 h-4 text-green-600" /> {lessons.length} {t('common.lessons')}
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{course.title}</h1>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{course.description}</p>
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-tight">
+                {course.title}
+              </h1>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {course.description}
+              </p>
 
               {/* Instructor Card */}
-              <div className="flex items-center gap-3 pt-2">
-                <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-emerald-500/50">
+              <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
+                <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-green-500 shrink-0">
                   <Image
                     src={course.instructor_avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}
                     alt={course.instructor_name}
@@ -180,33 +198,41 @@ export default function CourseDetailsPage() {
                   />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white">{course.instructor_name}</div>
-                  <div className="text-[10px] text-slate-400">{course.instructor_role || 'Lead Instructor'}</div>
+                  <div className="text-xs font-bold text-gray-900">{course.instructor_name}</div>
+                  <div className="text-[11px] text-gray-500">{course.instructor_role || t('courseDetail.instructor')}</div>
                 </div>
               </div>
             </div>
 
             {/* Right Card: Progress & Primary CTA */}
-            <div className="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 space-y-6">
+            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200/90 space-y-6">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Your Progress</h3>
-                <ProgressBar value={progressPercent} size="lg" />
-                <p className="text-[11px] text-slate-400 mt-2 font-medium">
-                  {completedCount} of {lessons.length} lessons marked completed
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                  {t('courseDetail.yourProgress')}
+                </h3>
+                <ProgressBar value={progressPercent} size="lg" label={t('common.inProgress')} />
+                <p className="text-xs text-gray-500 mt-2 font-medium">
+                  {completedCount} / {lessons.length} {t('courseDetail.lessonsCompleted')}
                 </p>
               </div>
 
               {lessons.length > 0 ? (
                 <Link
                   href={`/courses/${course.id}/lessons/${lessons[0].id}`}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-navy font-black rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all shadow-md shadow-green-600/20"
                 >
-                  <PlayCircle className="w-5 h-5 fill-navy stroke-emerald-500" />
-                  {progressPercent === 100 ? 'Review Lessons' : progressPercent > 0 ? 'Continue Course' : 'Start Course'}
+                  <PlayCircle className="w-5 h-5 fill-white stroke-green-600" />
+                  <span>
+                    {progressPercent === 100
+                      ? t('courseDetail.reviewCourse')
+                      : progressPercent > 0
+                      ? t('courseDetail.continueCourse')
+                      : t('courseDetail.startCourse')}
+                  </span>
                 </Link>
               ) : (
-                <div className="p-3 bg-slate-800/80 rounded-xl text-center text-xs text-slate-400 font-medium">
-                  No lessons available in this course yet.
+                <div className="p-3 bg-white rounded-xl text-center text-xs text-gray-500 font-medium border border-gray-200">
+                  {t('courseDetail.noLessons')}
                 </div>
               )}
             </div>
@@ -214,12 +240,15 @@ export default function CourseDetailsPage() {
         </div>
 
         {/* Lesson Curriculum List */}
-        <div className="bg-navy-card border border-navy-border/80 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-emerald-400" /> Course Curriculum & Lessons
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+            <h2 className="text-lg font-extrabold text-gray-900 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-green-600" />
+              <span>{t('courseDetail.curriculum')}</span>
             </h2>
-            <span className="text-xs text-emerald-400 font-bold">{completedCount} / {lessons.length} Completed</span>
+            <span className="text-xs text-green-700 font-bold bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+              {completedCount} / {lessons.length} {t('common.completed')}
+            </span>
           </div>
 
           {lessons.length > 0 ? (
@@ -230,46 +259,46 @@ export default function CourseDetailsPage() {
                   href={`/courses/${course.id}/lessons/${lesson.id}`}
                   className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 group ${
                     lesson.completed
-                      ? 'bg-slate-900/60 border-slate-800 hover:border-emerald-500/40'
-                      : 'bg-navy-dark/90 border-slate-800/80 hover:border-emerald-500'
+                      ? 'bg-green-50/40 border-green-200 hover:border-green-400'
+                      : 'bg-white border-gray-200 hover:border-green-400'
                   }`}
                 >
                   <div className="flex items-center gap-4 min-w-0">
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold transition-colors ${
                         lesson.completed
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-slate-800 text-slate-300 group-hover:bg-emerald-500 group-hover:text-navy'
+                          ? 'bg-green-600 text-white shadow-xs'
+                          : 'bg-gray-100 text-gray-600 group-hover:bg-green-600 group-hover:text-white'
                       }`}
                     >
                       {lesson.completed ? <CheckCircle2 className="w-5 h-5" /> : lesson.position || idx + 1}
                     </div>
 
                     <div className="min-w-0">
-                      <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors truncate">
+                      <h3 className="text-sm font-bold text-gray-900 group-hover:text-green-700 transition-colors truncate">
                         {lesson.title}
                       </h3>
-                      <p className="text-xs text-slate-400 truncate mt-0.5">{lesson.description}</p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5">{lesson.description}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0 text-xs text-slate-400">
+                  <div className="flex items-center gap-4 shrink-0 text-xs text-gray-500">
                     {lesson.has_quiz && (
-                      <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">
-                        <HelpCircle className="w-3 h-3" /> Quiz Included
+                      <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+                        <HelpCircle className="w-3 h-3" /> {t('courseDetail.quizIncluded')}
                       </span>
                     )}
                     <span className="flex items-center gap-1 font-medium">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" /> {lesson.duration_minutes}m
+                      <Clock className="w-3.5 h-3.5 text-gray-400" /> {lesson.duration_minutes} {t('common.minutes')}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-green-700 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-10 text-xs text-slate-400">
-              No lessons have been added to this course curriculum yet.
+            <div className="text-center py-10 text-xs text-gray-400">
+              {t('courseDetail.noLessons')}
             </div>
           )}
         </div>

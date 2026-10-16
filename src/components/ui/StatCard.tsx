@@ -7,28 +7,31 @@ interface StatCardProps {
   subtitle?: string;
   icon: LucideIcon;
   trend?: string;
-  accentColor?: 'emerald' | 'blue' | 'purple' | 'amber';
+  accentColor?: 'emerald' | 'green' | 'blue' | 'purple' | 'amber';
 }
 
-export function StatCard({ title, value, subtitle, icon: Icon, trend, accentColor = 'emerald' }: StatCardProps) {
+export function StatCard({ title, value, subtitle, icon: Icon, trend, accentColor = 'green' }: StatCardProps) {
   const iconColorStyles = {
-    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    emerald: 'bg-green-50 text-green-700 border-green-200/60',
+    green: 'bg-green-50 text-green-700 border-green-200/60',
+    blue: 'bg-blue-50 text-blue-700 border-blue-200/60',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200/60',
+    amber: 'bg-amber-50 text-amber-700 border-amber-200/60',
   };
 
+  const selectedColor = iconColorStyles[accentColor] || iconColorStyles.green;
+
   return (
-    <div className="bg-navy-card border border-navy-border/60 rounded-xl p-5 hover:border-emerald-500/30 transition-all shadow-lg group">
+    <div className="bg-white border border-gray-200 rounded-xl p-5 hover:border-green-400/80 transition-all shadow-sm group">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">{title}</p>
-          <h3 className="text-2xl font-extrabold text-white tracking-tight">{value}</h3>
-          {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
-          {trend && <p className="text-xs text-emerald-400 font-medium mt-1">{trend}</p>}
+        <div className="min-w-0 pr-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1 truncate">{title}</p>
+          <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight">{value}</h3>
+          {subtitle && <p className="text-xs text-gray-500 mt-1 truncate">{subtitle}</p>}
+          {trend && <p className="text-xs text-green-600 font-semibold mt-1">{trend}</p>}
         </div>
-        <div className={`p-3 rounded-xl border ${iconColorStyles[accentColor]} group-hover:scale-105 transition-transform`}>
-          <Icon className="w-6 h-6" />
+        <div className={`p-3 rounded-xl border ${selectedColor} shrink-0 group-hover:scale-105 transition-transform`}>
+          <Icon className="w-5 h-5" />
         </div>
       </div>
     </div>

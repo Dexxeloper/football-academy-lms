@@ -27,8 +27,10 @@ import {
   Sparkles,
   Loader2,
 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const supabase = createClient();
   const [courses, setCourses] = useState<Course[]>([]);
   const [userProfile, setUserProfile] = useState({
@@ -101,13 +103,11 @@ export default function DashboardPage() {
   return (
     <BaseLayout>
       <div className="space-y-8">
-        {/* Hero Welcome Card */}
-        <div className="relative bg-gradient-to-r from-navy-card via-slate-900 to-navy-dark border border-navy-border/80 rounded-3xl p-6 sm:p-8 overflow-hidden shadow-2xl">
-          <div className="absolute -right-10 -bottom-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-          
+        {/* Welcome Hero Card */}
+        <div className="relative bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 overflow-hidden shadow-sm">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
             <div className="flex items-center gap-5">
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-emerald-500/80 shadow-xl shrink-0">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-green-500 shadow-md shrink-0">
                 <Image
                   src={userProfile.avatar_url}
                   alt={userProfile.full_name}
@@ -116,23 +116,23 @@ export default function DashboardPage() {
                 />
               </div>
               <div>
-                <div className="flex items-center gap-2.5 mb-1">
-                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                    Welcome back, {userProfile.full_name}!
+                <div className="flex flex-wrap items-center gap-2.5 mb-1">
+                  <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                    {t('dashboard.welcomeBack')}, {userProfile.full_name}!
                   </h1>
-                  <Badge variant={userProfile.role === 'admin' ? 'purple' : 'emerald'}>
+                  <Badge variant={userProfile.role === 'admin' ? 'purple' : 'green'}>
                     {userProfile.role}
                   </Badge>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300">
+                <p className="text-xs sm:text-sm text-gray-500">
                   {userProfile.academy_position}
                 </p>
-                <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                  <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                    <ShieldCheck className="w-3.5 h-3.5" /> UEFA A License Track
+                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                  <span className="flex items-center gap-1 text-green-700 font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-green-600" /> {t('nav.coachTrack')}
                   </span>
                   <span>&bull;</span>
-                  <span>Academy Season 2026/27</span>
+                  <span>{t('nav.season')}</span>
                 </div>
               </div>
             </div>
@@ -140,9 +140,10 @@ export default function DashboardPage() {
             {activeCourse && (
               <Link
                 href={`/courses/${activeCourse.id}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-navy font-black rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/20 shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all shadow-sm shadow-green-600/20 shrink-0"
               >
-                <Play className="w-4 h-4 fill-navy" /> Resume Active Course
+                <Play className="w-4 h-4 fill-white" />
+                <span>{t('dashboard.continueButton')}</span>
               </Link>
             )}
           </div>
@@ -151,28 +152,28 @@ export default function DashboardPage() {
         {/* Overview Stat Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title="Overall Progress"
+            title={t('dashboard.overallProgress')}
             value="67%"
-            subtitle="14 / 20 Lessons Completed"
+            subtitle={`14 / 20 ${t('dashboard.lessonsCompleted')}`}
             icon={TrendingUp}
-            accentColor="emerald"
+            accentColor="green"
           />
           <StatCard
-            title="Enrolled Courses"
+            title={t('dashboard.coursesEnrolled')}
             value={courses.length}
-            subtitle={`${courses.length} Active in Database`}
+            subtitle={`${courses.length} ${t('common.published')}`}
             icon={BookOpen}
             accentColor="blue"
           />
           <StatCard
-            title="Completed Courses"
+            title={t('dashboard.coursesCompleted')}
             value="2"
-            subtitle="Fully Certified"
+            subtitle={t('common.completed')}
             icon={CheckCircle2}
             accentColor="purple"
           />
           <StatCard
-            title="Certificates"
+            title={t('dashboard.certificates')}
             value={MOCK_CERTIFICATES.length}
             subtitle="UEFA Validated"
             icon={Award}
@@ -182,26 +183,26 @@ export default function DashboardPage() {
 
         {/* Active Current Course Widget */}
         {activeCourse ? (
-          <div className="bg-navy-card border border-navy-border/90 rounded-3xl p-6 sm:p-8 shadow-xl relative">
+          <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm relative">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-lg font-extrabold text-white">Current Active Course</h2>
+                <Sparkles className="w-5 h-5 text-green-600" />
+                <h2 className="text-lg font-extrabold text-gray-900">{t('dashboard.continueLearning')}</h2>
               </div>
-              <Badge variant="emerald">In Progress</Badge>
+              <Badge variant="green">{t('common.inProgress')}</Badge>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-              {/* Image Preview */}
-              <div className="relative aspect-video h-44 sm:h-48 md:h-52 w-full rounded-2xl overflow-hidden border border-slate-800">
+              {/* Image Preview with fixed aspect ratio */}
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-gray-200">
                 <Image
                   src={activeCourse.thumbnail_url}
                   alt={activeCourse.title}
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                  <span className="text-xs font-bold text-emerald-400 bg-navy/80 px-2.5 py-1 rounded-md border border-emerald-500/30">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4">
+                  <span className="text-xs font-bold text-green-800 bg-white/95 px-2.5 py-1 rounded-md shadow-sm">
                     {activeCourse.category}
                   </span>
                 </div>
@@ -210,26 +211,26 @@ export default function DashboardPage() {
               {/* Course Info & Progress */}
               <div className="md:col-span-2 space-y-4">
                 <div>
-                  <h3 className="text-xl font-black text-white mb-2">{activeCourse.title}</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">{activeCourse.description}</p>
+                  <h3 className="text-xl font-black text-gray-900 mb-2">{activeCourse.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{activeCourse.description}</p>
                 </div>
 
-                <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
-                  <ProgressBar value={activeCourse.progress || 67} size="md" />
-                  <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-                    <span>Instructor: <strong className="text-slate-200">{activeCourse.instructor_name}</strong></span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-emerald-400" /> {activeCourse.duration_minutes} Minutes
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200/80 space-y-3">
+                  <ProgressBar value={activeCourse.progress || 67} size="md" label={t('dashboard.overallProgress')} />
+                  <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
+                    <span>{t('dashboard.instructor')}: <strong className="text-gray-800">{activeCourse.instructor_name}</strong></span>
+                    <span className="flex items-center gap-1 font-medium">
+                      <Clock className="w-3.5 h-3.5 text-green-600" /> {activeCourse.duration_minutes} {t('common.minutes')}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end pt-2">
+                <div className="flex items-center justify-end pt-1">
                   <Link
                     href={`/courses/${activeCourse.id}`}
-                    className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-bold text-xs group"
+                    className="inline-flex items-center gap-2 text-green-700 hover:text-green-800 font-bold text-xs group"
                   >
-                    View Curriculum & Lessons
+                    <span>{t('dashboard.viewCurriculum')}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
@@ -237,10 +238,10 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-navy-card border border-navy-border/90 rounded-3xl p-6 text-center">
-            <BookOpen className="w-8 h-8 text-slate-500 mx-auto mb-2" />
-            <h3 className="text-sm font-bold text-white mb-1">No Active Courses in Database</h3>
-            <p className="text-xs text-slate-400">Head to the Admin control panel to create and publish courses.</p>
+          <div className="bg-white border border-gray-200 rounded-3xl p-8 text-center shadow-sm">
+            <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+            <h3 className="text-sm font-bold text-gray-900 mb-1">{t('dashboard.noCourses')}</h3>
+            <p className="text-xs text-gray-500">{t('dashboard.noCoursesDesc')}</p>
           </div>
         )}
 
@@ -249,16 +250,16 @@ export default function DashboardPage() {
           {/* Courses Catalog Showcase (2 Cols) */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-white">Academy Courses</h2>
-              <Link href="/courses" className="text-xs font-bold text-emerald-400 hover:underline">
-                View All Courses &rarr;
+              <h2 className="text-lg font-extrabold text-gray-900">{t('dashboard.academyCourses')}</h2>
+              <Link href="/courses" className="text-xs font-bold text-green-700 hover:text-green-800 hover:underline">
+                {t('dashboard.viewAllCourses')} &rarr;
               </Link>
             </div>
 
             {loading ? (
-              <div className="text-center py-10 bg-navy-card border border-navy-border rounded-2xl">
-                <Loader2 className="w-6 h-6 text-emerald-400 animate-spin mx-auto mb-2" />
-                <p className="text-xs text-slate-400">Loading courses...</p>
+              <div className="text-center py-10 bg-white border border-gray-200 rounded-2xl">
+                <Loader2 className="w-6 h-6 text-green-600 animate-spin mx-auto mb-2" />
+                <p className="text-xs text-gray-500">{t('common.loading')}</p>
               </div>
             ) : courses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -267,8 +268,8 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 bg-navy-card border border-navy-border rounded-2xl p-6">
-                <p className="text-xs text-slate-400">No published courses found in Supabase.</p>
+              <div className="text-center py-10 bg-white border border-gray-200 rounded-2xl p-6">
+                <p className="text-xs text-gray-500">{t('dashboard.noCoursesDesc')}</p>
               </div>
             )}
           </div>
@@ -276,27 +277,28 @@ export default function DashboardPage() {
           {/* Right Column: Certificates & Recent Activity */}
           <div className="space-y-6">
             {/* Certificates Box */}
-            <div className="bg-navy-card border border-navy-border/80 rounded-2xl p-5 shadow-xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Award className="w-4 h-4 text-emerald-400" /> Earned Certificates
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                  <Award className="w-4 h-4 text-green-600" />
+                  <span>{t('dashboard.earnedCertificates')}</span>
                 </h3>
-                <span className="text-xs text-slate-400 font-semibold">{MOCK_CERTIFICATES.length} Total</span>
+                <span className="text-xs text-gray-400 font-semibold">{MOCK_CERTIFICATES.length} Total</span>
               </div>
 
               <div className="space-y-3">
                 {MOCK_CERTIFICATES.map((cert) => (
                   <div
                     key={cert.id}
-                    className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/30 transition-all flex items-start gap-3"
+                    className="p-3.5 rounded-xl bg-gray-50 border border-gray-200/80 hover:border-green-300 transition-all flex items-start gap-3"
                   >
-                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
-                      <Award className="w-5 h-5" />
+                    <div className="p-2 rounded-lg bg-green-100/70 text-green-700 shrink-0">
+                      <Award className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs font-bold text-white truncate">{cert.course_title}</h4>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Code: {cert.certificate_code}</p>
-                      <p className="text-[10px] text-emerald-400 font-medium mt-1">Issued: {cert.issue_date}</p>
+                      <h4 className="text-xs font-bold text-gray-900 truncate">{cert.course_title}</h4>
+                      <p className="text-[10px] text-gray-500 mt-0.5">Code: {cert.certificate_code}</p>
+                      <p className="text-[10px] text-green-700 font-medium mt-1">Issued: {cert.issue_date}</p>
                     </div>
                   </div>
                 ))}
@@ -304,20 +306,21 @@ export default function DashboardPage() {
             </div>
 
             {/* Recent Activity Log */}
-            <div className="bg-navy-card border border-navy-border/80 rounded-2xl p-5 shadow-xl">
-              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-emerald-400" /> Recent Activity
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+              <h3 className="text-sm font-bold text-gray-900 mb-4 pb-3 border-b border-gray-100 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-green-600" />
+                <span>{t('dashboard.recentActivity')}</span>
               </h3>
 
               <div className="space-y-4">
                 {MOCK_ACTIVITIES.map((act) => (
                   <div key={act.id} className="flex items-start gap-3 text-xs">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
+                    <div className="w-2 h-2 rounded-full bg-green-600 mt-1.5 shrink-0" />
                     <div>
-                      <p className="text-slate-200 font-medium">
-                        <strong className="text-white">{act.action}</strong>: {act.target}
+                      <p className="text-gray-700 font-medium">
+                        <strong className="text-gray-900">{act.action}</strong>: {act.target}
                       </p>
-                      <span className="text-[10px] text-slate-400">{act.timestamp}</span>
+                      <span className="text-[10px] text-gray-400">{act.timestamp}</span>
                     </div>
                   </div>
                 ))}
